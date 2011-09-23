@@ -1,0 +1,75 @@
+This agent allows to dump stack during runtime if a condition has been met. 
+Currently the following conditions are supported
+     - field value modifications
+     - method calls
+
+To set a condition on method call it's necessary to specify the method signature.
+A command javap can be used to print method signatures.
+e.g. cmd>javap -s op.test.Test
+
+!!----------------------------------IMPORTANT---------------------------------------------------------
+!! Enabling method calls is prohibitly slow in big applications. Further investigation is necessary.
+!! Without enabling method call the field modification via reflection cannot be detected
+!!----------------------------------------------------------------------------------------------------
+
+For example in the following java code field 'param' is modified in the method modify_param and in the method modify_param_reflect.
+
+
+ public class Test {
+
+     private int param = 10;
+
+     void modify_param(int p) {
+         param = p;
+     }
+ 
+     void modify_param_reflect(int p) {
+         try {
+             Field field = Test.class.getDeclaredField("param");
+             field.set(this, new Integer(p));
+         } catch(Exception e)  {
+         }
+     }
+ 
+     public static void main(String[] args) {
+         Test test = new Test();
+         test.modify_param(111);
+         test.modify_param_reflect(222);
+     }
+
+ }
+
+Agent can be configured to dump stack only if a new field value is equal (or is not equal) to a configurable value
+
+Examples of usage:
+
+(i) dump when 'param' is modified. maximum traces
+java -Xcheck:jni -agentlib:fldagent=verbose=4,out=d:\\Work\\jvmti\\agent\\tmp\\,wc=op/test/Test,wf=param,wfs=I op.test.Test
+
+(ii) dump when 'param' is modified and is equal to 111
+java -Xcheck:jni -agentlib:fldagent=out=d:\\Work\\jvmti\\agent\\tmp\\,wc=op/test/Test,wf=param,wfs=I,wv=111 op.test.Test
+
+(iii) dump when 'param' is modified and is not equal to 222. 
+java -Xcheck:jni -agentlib:fldagent=out=d:\\Work\\jvmti\\agent\\tmp\\,wc=op/test/Test,wf=param,wfs=I,wv~=222 op.test.Test
+
+(iv) dump when 'status' is modified. 
+java -Xcheck:jni -agentlib:fldagent='verbose=1,out=d:\\Work\\jvmti\\agent\\tmp\\,wc=op/test/Test,wf=status,wfs=Ljava/lang/Integer;' op.test.Test
+
+(v) dump 'param' is modified and is equal to 111 but only for object 'qwert'
+java -Xcheck:jni -agentlib:fldagent=out=d:\\Work\\jvmti\\agent\\tmp\\,wc=op/test/Test,wf=param,wfs=I,wv=111,wov=qwert op.test.Test
+
+(vi) modifications in jboss run.bat. Comment out the debug options
+rem set JAVA_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n %JAVA_OPTS%
+set JAVA_OPTS=-Xcheck:jni -agentlib:fldagent="verbose=1,out=d:\\Work\\jvmti\\agent\\tmp\\,wc=com/lysis/idtv3/workflow/adaptors/PJobStep,wf=mStatus,wfs=Ljava/lang/Integer;" %JAVA_OPTS%
+
+(x) method call DISABLED BECAUSE OF PERFORMANCE ISSUES
+java -Xcheck:jni -agentlib:fldagent='verbose=1,out=d:\\Work\\jvmti\\agent\\tmp\\,mc=op/test/Test,mm=modify_param,mms=(I)V' op.test.Test
+
+
+TODO:
+- implement file command polling to allow enable/disable agent tracing and to modify options
+- finish agent class loader
+
+In UNIX environment it's necessary to 
+   export LD_LIBRARY_PATH=/home/oleg/temp/agent
+

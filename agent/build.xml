@@ -1,0 +1,67 @@
+<project name="AgentAdapter" default="compile">
+  
+  <!-- <property environment="env" /> -->
+  <property environment="ENV"/> 
+  <property name="basedir"        value="."/>
+  <property name="src"            value="${basedir}/src"/>
+  <property name="build"          value="${basedir}/build"/>
+  <property name="run.classname"  value="op.agent.AgentClassLoader"/>
+  <property name="run.parameters" value="op.test.Test"/>
+
+  <target name="echo"> 
+    <echo> Classpath = "${ENV.CLASSPATH}"</echo> 
+  </target> 
+
+
+  <path id="classpath">
+    <pathelement path="${ENV.CLASSPATH}"/>
+    <pathelement location="c:/Soft/java/asm-3.3.1/lib/all/asm-all-3.3.1.jar"/>
+    <pathelement location="${build}"/>
+    <pathelement location="c:/Work/oleg/jvmti/agent/agent.jar"/>
+    <!-- <fileset dir="d:/Deploy/jboss-4.3.0.GA_CP06/lib"> -->
+    <!--     <include name="**/*.jar"/> -->
+    <!-- </fileset> -->
+    <!-- <fileset dir="d:/Deploy/jboss-4.3.0.GA_CP06/server/default/lib/"> -->
+    <!--     <include name="**/*.jar"/> -->
+    <!-- </fileset> -->
+  </path>
+
+  <target name="execute" depends="compile">
+    <java classname="${run.classname}"  classpathref="classpath" fork="yes" failonerror="yes">
+      <arg line="${run.parameters}"/>
+    </java>
+  </target>
+
+  <target name="jar" depends="compile">
+    <jar destfile="agent.jar">
+      <!-- <manifest> -->
+      <!--   <attribute name="Main-Class" value="Main"/> -->
+      <!-- </manifest> -->
+      <fileset dir="${build}" includes="op/agent/**" />
+    </jar>
+  </target>
+
+  <target name="sar" depends="compile">
+    <jar destfile="agent-deployer.sar">
+      <!-- <manifest> -->
+      <!--   <attribute name="Main-Class" value="Main"/> -->
+      <!-- </manifest> -->
+      <fileset dir="${build}" includes="op/agent/**" />
+      <fileset dir="${src}/resources" includes="**" />
+    </jar>
+  </target>
+
+
+  <target name="compile">
+    <mkdir dir="${build}"/>
+    <javac srcdir="${src}" destdir="${build}" debug="on">
+      <classpath refid="classpath"/>
+      <include name="**/*.java"/>
+    </javac>
+  </target>
+
+  <target name="clean">
+    <delete dir="${build}"/>
+  </target>
+
+</project>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+The JBoss service configuration file for the EJB deployer service.
+
+$Id: ejb-deployer.xml 62317 2007-04-13 10:39:22Z dimitris@jboss.org $
+-->
+<server>
+  
+    <!-- <mbean code="org.jboss.system.BarrierController" name="jboss:service=BarrierController"> -->
+    <!--     <attribute name="BarrierEnabledOnStartup">false</attribute> -->
+    <!--     <attribute name="DynamicSubscriptions">true</attribute> -->
+    <!--     <attribute name="BarrierObjectName">jboss:name=TomcatConnector,type=Barrier</attribute> -->
+    <!--     <attribute name="StartBarrierHandback">start</attribute> -->
+    <!--     <attribute name="StopBarrierHandback">stop</attribute> -->
+    <!--     <attribute name="SubscriptionList"> -->
+    <!--         <subscription-list> -->
+    <!--             <mbean name="jboss.web:service=WebServer" handback="start"> -->
+    <!--                 <filter factory="NotificationFilterSupportFactory"> -->
+    <!--                     <enable type="jboss.tomcat.connectors.started"/> -->
+    <!--                 </filter> -->
+    <!--             </mbean> -->
+
+    <!--             <mbean name="jboss.system:type=Server" handback="stop"> -->
+    <!--                 <filter factory="NotificationFilterSupportFactory"> -->
+    <!--                     <enable type="org.jboss.system.server.stopped"/> -->
+    <!--                 </filter> -->
+    <!--             </mbean> -->
+    <!--         </subscription-list> -->
+    <!--     </attribute> -->
+    <!-- </mbean> -->
+
+
+  
+  <!-- EJB deployer, remove to disable EJB behavior-->
+  <mbean code="op.agent.AgentDeployerMBean" name="jboss.ejb:service=AgentDeployer" xmbean-dd="">
+    
+    <xmbean>
+      <description>The AgentDeployer responsible for ear deployment</description>
+      <class>op.agent.AgentDeployerMBean</class>
+      
+      <operation>
+        <description>Standard MBean lifecycle method</description>
+        <name>create</name>
+      </operation>
+      
+      <operation>
+        <description>The start lifecycle operation</description>
+        <name>start</name>
+      </operation>
+      
+      <operation>
+        <description>The stop lifecycle operation</description>
+        <name>stop</name>
+      </operation>
+      
+      <operation>
+        <description>The destroy lifecycle operation</description>
+        <name>destroy</name>
+      </operation>
+      
+      <operation>
+        <description>The detyped lifecycle operation (for internal use only)</description>
+        <name>jbossInternalLifecycle</name>
+        <parameter>
+          <description>The lifecycle operation</description>
+          <name>method</name>
+          <type>java.lang.String</type>
+        </parameter>
+        <return-type>void</return-type>
+      </operation>
+      
+      <operation>
+        <description>Accept a module for deployment</description>
+        <name>accepts</name>
+        <parameter>
+          <name>info</name>
+          <type>org.jboss.deployment.DeploymentInfo</type>
+        </parameter>
+        <return-type>boolean</return-type>
+      </operation>
+      
+      <operation>
+        <description>Initialize deployment step</description>
+        <name>init</name>
+        <parameter>
+          <name>info</name>
+          <type>org.jboss.deployment.DeploymentInfo</type>
+        </parameter>
+      </operation>
+      
+      <operation>
+        <description>Create deployment step</description>
+        <name>create</name>
+        <parameter>
+          <name>info</name>
+          <type>org.jboss.deployment.DeploymentInfo</type>
+        </parameter>
+      </operation>
+      
+      <operation>
+        <description>Start deployment step</description>
+        <name>start</name>
+        <parameter>
+          <name>info</name>
+          <type>org.jboss.deployment.DeploymentInfo</type>
+        </parameter>
+      </operation>
+      
+      <operation>
+        <description>Stop deployment step</description>
+        <name>stop</name>
+        <parameter>
+          <name>info</name>
+          <type>org.jboss.deployment.DeploymentInfo</type>
+        </parameter>
+      </operation>
+      
+      <operation>
+        <description>Destroy deployment step</description>
+        <name>destroy</name>
+        <parameter>
+          <name>info</name>
+          <type>org.jboss.deployment.DeploymentInfo</type>
+        </parameter>
+      </operation>
+      
+      
+    </xmbean>
+    
+    
+  </mbean>
+  
+</server>
