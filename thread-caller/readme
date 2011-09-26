@@ -33,6 +33,7 @@ To run in jboss put the following lines in the run.bat
 set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%JBOSS_HOME%\server\default\lib\StackDumpSecurityManager.jar
 
 set JAVA_OPTS=%JAVA_OPTS% -Djava.security.manager=StackDumpSecurityManager
+rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.traceElementSeparator="*+*"
 rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.logLevel=2
 set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.includeCreateThread=".*?lysis.*"
 set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.excludeCreateThread=".*?AbstractPollingService\$TimerListener#handleNotification.*"

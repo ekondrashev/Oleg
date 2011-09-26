@@ -7,6 +7,7 @@ public class StackDumpSecurityManager extends SecurityManager  {
     private String[] excludeWriteFile = new String[0];
 
     private int logLevel = 0;
+    private String traceElementSeparator = ";; ";
 
     public StackDumpSecurityManager() {
         super();
@@ -15,6 +16,13 @@ public class StackDumpSecurityManager extends SecurityManager  {
         if(log != null && log.trim().length() > 0) {
             logLevel = Integer.valueOf(log);
             if(logLevel > 0) { System.out.println("----------INFO StackDumpSecurityManager init. logLevel=" + logLevel); }
+        }
+        }
+        {
+        String sep = System.getProperty("StackDumpSecurityManager.traceElementSeparator");
+        if(sep != null && sep.trim().length() > 0) {
+            traceElementSeparator = sep;
+            if(logLevel > 0) { System.out.println("----------INFO StackDumpSecurityManager init. traceElementSeparator=" + traceElementSeparator); }
         }
         }
         {
@@ -82,14 +90,14 @@ public class StackDumpSecurityManager extends SecurityManager  {
 
         boolean matches = false;
         StringBuffer dump = new StringBuffer("--------StackDumpSecurityManager " + prefix + " ------{{");
-        dump.append(param).append(' ');
+        dump.append(param).append(traceElementSeparator);
         for(String ire : includeRegex) {
             if(param.matches(ire)) {
                 matches = true;
             }
             for(StackTraceElement ste : listSTE) {
                 StringBuffer elem = new StringBuffer(ste.getClassName()).append('#').append(ste.getMethodName()).
-                    append('(').append(ste.getFileName()).append(':').append(ste.getLineNumber()).append(") ");
+                    append('(').append(ste.getFileName()).append(':').append(ste.getLineNumber()).append(")").append(traceElementSeparator);
                 dump.append(elem);
 
                 if(logLevel > 1) {
