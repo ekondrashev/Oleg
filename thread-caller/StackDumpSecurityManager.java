@@ -59,7 +59,7 @@ public class StackDumpSecurityManager extends SecurityManager  {
         }
     }
 
-    private void dumpIfMatch(String[] includeRegex, String[] excludeRegex, String param) {
+    private void dumpIfMatch(String[] includeRegex, String[] excludeRegex, String param, String prefix) {
         Thread t = Thread.currentThread();
         StackTraceElement[] listSTE = t.getStackTrace();
 
@@ -71,7 +71,7 @@ public class StackDumpSecurityManager extends SecurityManager  {
             // test if the parameter is excluded, so we don't need to do other tests
             for(String ere : excludeRegex) {
                 if(logLevel > 1) {
-                    System.out.println("----------DEBUG StackDumpSecurityManager.dumpIfMatch check exclude first'" + 
+                    System.out.println("----------DEBUG StackDumpSecurityManager.dumpIfMatch " + prefix + " check exclude first'" + 
                                        param + "' matches '" + ere + "'" + param.matches(ere));
                 }
                 if(param.matches(ere)) {
@@ -81,7 +81,7 @@ public class StackDumpSecurityManager extends SecurityManager  {
         }
 
         boolean matches = false;
-        StringBuffer dump = new StringBuffer("--------StackDumpSecurityManager------{{");
+        StringBuffer dump = new StringBuffer("--------StackDumpSecurityManager " + prefix + " ------{{");
         dump.append(param).append(' ');
         for(String ire : includeRegex) {
             if(param.matches(ire)) {
@@ -93,7 +93,7 @@ public class StackDumpSecurityManager extends SecurityManager  {
                 dump.append(elem);
 
                 if(logLevel > 1) {
-                    System.out.println("----------DEBUG StackDumpSecurityManager.dumpIfMatch check include'" 
+                    System.out.println("----------DEBUG StackDumpSecurityManager.dumpIfMatch  " + prefix + " check include'" 
                                        + elem + "' matches '" + ire + "' result " + (new String(elem).matches(ire)));
                 }
                 if(matches || new String(elem).matches(ire)) {
@@ -109,7 +109,7 @@ public class StackDumpSecurityManager extends SecurityManager  {
             String sdump = new String(dump);
             for(String ere : excludeRegex) {
                 if(logLevel > 1) {
-                    System.out.println("----------DEBUG StackDumpSecurityManager.dumpIfMatch check exclude '" + 
+                    System.out.println("----------DEBUG StackDumpSecurityManager.dumpIfMatch  " + prefix + " check exclude '" + 
                                        sdump + "' matches '" + ere + "' result " + sdump.matches(ere));
                 }
                 if(sdump.matches(ere)) {
@@ -125,7 +125,7 @@ public class StackDumpSecurityManager extends SecurityManager  {
 
     public ThreadGroup getThreadGroup() {
 
-        dumpIfMatch(includeCreateThread, excludeCreateThread, "");
+        dumpIfMatch(includeCreateThread, excludeCreateThread, "", "getThreadGroup");
         return super.getThreadGroup();
     }
 
@@ -133,7 +133,7 @@ public class StackDumpSecurityManager extends SecurityManager  {
     public void checkWrite(String file) {
         
         try {
-            dumpIfMatch(includeWriteFile, excludeWriteFile, file.replace('\\', '/'));
+            dumpIfMatch(includeWriteFile, excludeWriteFile, file.replace('\\', '/'), "checkWrite");
         } catch(Exception ex) {
             System.err.println(ex);
         }
