@@ -3,7 +3,7 @@ The source is http://stackoverflow.com/questions/6364849/can-i-get-the-name-of-t
 
 To compile:
 javac StackDumpSecurityManager.java
-jar cvf StackDumpSecurityManager.jar StackDumpSecurityManager.class
+jar cvf StackDumpSecurityManager.jar StackDumpSecurityManager.class StackDumpSecurityManager$PropertyTuple.class
 
 Set system properties:
 
@@ -15,9 +15,19 @@ StackDumpSecurityManager.includeCreateThread
 
 Run using the following options:
 
-java -DStackDumpSecurityManager.logLevel=2 -DStackDumpSecurityManager.includeCreateThread=".*?ThreadCaller#c.*" -DStackDumpSecurityManager.excludeCreateThread=".*?ThreadCaller#a.*" -Djava.security.policy=grant-everything.policy -Djava.security.manager=StackDumpSecurityManager ThreadCaller 
+using string comparison:
 
-java -DStackDumpSecurityManager.includeWriteFile=".*?output.*" -DStackDumpSecurityManager.excludeWriteFile=".*?output2.*" -Djava.security.policy=grant-everything.policy -Djava.security.manager=StackDumpSecurityManager FileWrite
+java -DStackDumpSecurityManager.logLevel=2 -DStackDumpSecurityManager.includeCreateThread="ThreadCaller#c" -DStackDumpSecurityManager.excludeCreateThread="ThreadCaller#a" -Djava.security.policy=grant-everything.policy -Djava.security.manager=StackDumpSecurityManager ThreadCaller 
+
+java -DStackDumpSecurityManager.includeWriteFile="output" -DStackDumpSecurityManager.excludeWriteFile="output2" -Djava.security.policy=grant-everything.policy -Djava.security.manager=StackDumpSecurityManager FileWrite
+
+
+
+or regex:
+
+java -DStackDumpSecurityManager.logLevel=2 -DStackDumpSecurityManager.includeCreateThread="{.*?ThreadCaller#c.*}" -DStackDumpSecurityManager.excludeCreateThread="{.*?ThreadCaller#a.*}" -Djava.security.policy=grant-everything.policy -Djava.security.manager=StackDumpSecurityManager ThreadCaller 
+
+java -DStackDumpSecurityManager.includeWriteFile="{.*?output.*}" -DStackDumpSecurityManager.excludeWriteFile="{.*?output2.*}" -Djava.security.policy=grant-everything.policy -Djava.security.manager=StackDumpSecurityManager FileWrite
 
 
 
@@ -35,11 +45,24 @@ set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%JBOSS_HOME%\server\default\lib\StackDumpS
 set JAVA_OPTS=%JAVA_OPTS% -Djava.security.manager=StackDumpSecurityManager
 rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.traceElementSeparator="*+*"
 rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.logLevel=2
-set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.includeCreateThread=".*?lysis.*"
-set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.excludeCreateThread=".*?AbstractPollingService\$TimerListener#handleNotification.*"
-set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.includeWriteFile=.*
-set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.excludeWriteFile=".*?server/default/data.*;.*?server/default/tmp.*;.*?server/default/work.*;.*?server/default/log.*"
 set JAVA_OPTS=%JAVA_OPTS% -Djava.security.policy=%JBOSS_HOME%/server/default/conf/server.policy
+
+rem with strings comparison
+
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.includeCreateThread="lysis"
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.excludeCreateThread="AbstractPollingService$TimerListener#handleNotification"
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.includeWriteFile=""
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.excludeWriteFile="server/default/data;server/default/tmp;server/default/work;server/default/log"
+
+
+rem with regular expressions
+
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.includeCreateThread="{.*?lysis.*}"
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.excludeCreateThread="{.*?AbstractPollingService\$TimerListener#handleNotification.*}"
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.includeWriteFile="{.*}"
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.excludeWriteFile="{.*?server/default/data.*;.*?server/default/tmp.*;.*?server/default/work.*;.*?server/default/log.*}"
+
+
 
 
 server.policy may contain totally permissive policy
@@ -51,3 +74,35 @@ grant {
 ------------------------------------------------------------
 
 The StackInterceptor.java demonstrates a usage of InheritableThreadLocal. I don't know how to use it if a source of main() is not available. 
+
+import java.util.Arrays;
+
+public class StackInterceptor extends InheritableThreadLocal<StackTraceElement[]>{
+
+    public static final StackInterceptor instance;
+    static{
+        instance = new StackInterceptor();
+        instance.set(new Throwable().getStackTrace());
+    }
+
+    @Override
+    protected StackTraceElement[] childValue(StackTraceElement[] parentValue) {
+        return new Throwable().getStackTrace();
+    }
+
+    //test//
+    public static void main(String[] args) {
+        Runnable r= new Runnable(){
+            @Override
+            public void run() {
+                System.out.printf("%s - creation stack: %s%n", Thread.currentThread(), Arrays.toString(instance.get()).replace(',', '\n'));
+            }           
+        };
+
+        Thread t1 = new Thread(r, "t1");
+        //spacer
+        Thread t2 = new Thread(r, "t2");
+        t1.start();
+        t2.start();     
+    }
+}
