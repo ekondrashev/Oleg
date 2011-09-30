@@ -25,9 +25,6 @@
 
     <target name="jar" depends="compile">
         <jar destfile="StackDumpSM.jar">
-            <!-- <manifest> -->
-            <!--   <attribute name="Main-Class" value="Main"/> -->
-            <!-- </manifest> -->
             <fileset dir="${build.source}" includes="**" />
         </jar>
     </target>
@@ -50,7 +47,7 @@
     <presetdef name="runsm">
         <java classpathref="classpath" fork="yes" failonerror="yes">
             <sysproperty key="java.security.manager" value="StackDumpSecurityManager" />
-            <sysproperty key="StackDumpSM.logLevel" value="1" />
+            <sysproperty key="StackDumpSM.logLevel" value="0" />
             <sysproperty key="java.security.policy" value="grant-everything.policy" />
         </java>
     </presetdef>
