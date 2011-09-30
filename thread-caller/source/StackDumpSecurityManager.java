@@ -41,7 +41,7 @@ public class StackDumpSecurityManager extends SecurityManager  {
      *         null is interpreted as {} to facilitate the code in dumpIfMatch for(String ere : exclude)
      */
     private void readProperty(PropertyTuple tuple, boolean nullAsEmpty) {
-        String prop = System.getProperty("StackDumpSecurityManager." + tuple.name);
+        String prop = System.getProperty("StackDumpSM." + tuple.name);
         if(prop != null) {
             if(prop.length() > 0 && prop.charAt(0) == '{' && prop.charAt(prop.length()-1) == '}') {
                 prop = prop.substring(1, prop.length() - 1);
@@ -73,12 +73,12 @@ public class StackDumpSecurityManager extends SecurityManager  {
 
     public StackDumpSecurityManager() {
         super();
-        String log = System.getProperty("StackDumpSecurityManager.logLevel");
+        String log = System.getProperty("StackDumpSM.logLevel");
         if(log != null && log.trim().length() > 0) {
             logLevel = Integer.valueOf(log);
             if(logLevel > 0) { System.out.println("----------INFO StackDumpSecurityManager init. logLevel=" + logLevel); }
         }
-        String sep = System.getProperty("StackDumpSecurityManager.traceElementSeparator");
+        String sep = System.getProperty("StackDumpSM.traceElementSeparator");
         if(sep != null && sep.trim().length() > 0) {
             traceElementSeparator = sep;
             if(logLevel > 0) { System.out.println("----------INFO StackDumpSecurityManager init. traceElementSeparator=" + traceElementSeparator); }

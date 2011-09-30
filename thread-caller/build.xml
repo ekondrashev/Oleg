@@ -1,66 +1,84 @@
 <project name="AgentAdapter" default="compile">
-  
-  <property environment="ENV"/> 
-  <property name="basedir"        value="."/>
-  <property name="source"         value="${basedir}/source"/>
-  <property name="build"          value="${basedir}/build"/>
-  <property name="run.classname"  value="op.agent.AgentClassLoader"/>
-  <property name="run.parameters" value="op.test.Test"/>
+    
+    <property environment="ENV"/> 
+    <property name="basedir"        value="."/>
 
-  <target name="echo"> 
-    <echo> Classpath = "${ENV.CLASSPATH}"</echo> 
-  </target> 
+    <property name="source"         value="${basedir}/source" />
+    <property name="test"           value="${basedir}/test" />
 
+    <property name="build"          value="${basedir}/build" />
+    <property name="build.source"   value="${build}/source" />
+    <property name="build.test"     value="${build}/test" />
 
-  <path id="classpath">
-    <pathelement path="${ENV.CLASSPATH}"/>
-    <pathelement location="c:/Soft/java/asm-3.3.1/lib/all/asm-all-3.3.1.jar"/>
-    <pathelement location="${build}"/>
-    <pathelement location="c:/Work/oleg/jvmti/agent/agent.jar"/>
-    <!-- <fileset dir="d:/Deploy/jboss-4.3.0.GA_CP06/lib"> -->
-    <!--     <include name="**/*.jar"/> -->
-    <!-- </fileset> -->
-    <!-- <fileset dir="d:/Deploy/jboss-4.3.0.GA_CP06/server/default/lib/"> -->
-    <!--     <include name="**/*.jar"/> -->
-    <!-- </fileset> -->
-  </path>
+    <property name="run.logLevel"   value="op.test.Test"/>
 
-  <target name="execute" depends="compile">
-    <java classname="${run.classname}"  classpathref="classpath" fork="yes" failonerror="yes">
-      <arg line="${run.parameters}"/>
-    </java>
-  </target>
-
-  <target name="jar" depends="compile">
-    <jar destfile="agent.jar">
-      <!-- <manifest> -->
-      <!--   <attribute name="Main-Class" value="Main"/> -->
-      <!-- </manifest> -->
-      <fileset dir="${build}" includes="op/agent/**" />
-    </jar>
-  </target>
-
-  <target name="sar" depends="compile">
-    <jar destfile="agent-deployer.sar">
-      <!-- <manifest> -->
-      <!--   <attribute name="Main-Class" value="Main"/> -->
-      <!-- </manifest> -->
-      <fileset dir="${build}" includes="op/agent/**" />
-      <fileset dir="${src}/resources" includes="**" />
-    </jar>
-  </target>
+    <!-- <target name="echo">  -->
+    <!--   <echo> Classpath = "${ENV.CLASSPATH}"</echo>  -->
+    <!-- </target>  -->
 
 
-  <target name="compile">
-    <mkdir dir="${build}"/>
-    <javac srcdir="${src}" destdir="${build}" debug="on">
-      <classpath refid="classpath"/>
-      <include name="**/*.java"/>
-    </javac>
-  </target>
+    <path id="classpath">
+        <pathelement path="${ENV.CLASSPATH}"/>
+        <pathelement location="${basedir}/StackDumpSM.jar" />
+        <pathelement location="${build.test}" />
+    </path>
 
-  <target name="clean">
-    <delete dir="${build}"/>
-  </target>
+    <target name="jar" depends="compile">
+        <jar destfile="StackDumpSM.jar">
+            <!-- <manifest> -->
+            <!--   <attribute name="Main-Class" value="Main"/> -->
+            <!-- </manifest> -->
+            <fileset dir="${build.source}" includes="**" />
+        </jar>
+    </target>
+
+    <presetdef name="myjavac">
+        <javac includeantruntime="false" debug="off" >
+            <include name="**/*.java"/>
+        </javac>
+    </presetdef>
+
+    <target name="compile">
+        <mkdir dir="${build}"/>
+        <mkdir dir="${build.source}"/>
+        <mkdir dir="${build.test}"/>
+
+        <myjavac srcdir="${source}" destdir="${build.source}" />
+        <myjavac srcdir="${test}" destdir="${build.test}" />
+    </target>
+
+    <presetdef name="runsm">
+        <java classpathref="classpath" fork="yes" failonerror="yes">
+            <sysproperty key="java.security.manager" value="StackDumpSecurityManager" />
+            <sysproperty key="StackDumpSM.logLevel" value="1" />
+            <sysproperty key="java.security.policy" value="grant-everything.policy" />
+        </java>
+    </presetdef>
+
+    <target name="run-string" depends="jar">
+        <runsm classname="ThreadCaller">
+            <sysproperty key="StackDumpSM.includeCreateThread" value="ThreadCaller#c" />
+            <sysproperty key="StackDumpSM.excludeCreateThread" value="ThreadCaller#a" />
+        </runsm>
+        <runsm classname="FileWrite">
+            <sysproperty key="StackDumpSM.includeWriteFile" value="output" />
+            <sysproperty key="StackDumpSM.excludeWriteFile" value="output2" />
+        </runsm>
+    </target>
+
+    <target name="run-regex" depends="jar">
+        <runsm classname="ThreadCaller">
+            <sysproperty key="StackDumpSM.includeCreateThread" value="{.*?ThreadCaller#c.*}" />
+            <sysproperty key="StackDumpSM.excludeCreateThread" value="{.*?ThreadCaller#a.*}" />
+        </runsm>
+        <runsm classname="FileWrite">
+            <sysproperty key="StackDumpSM.includeWriteFile" value="{.*?output.*}" />
+            <sysproperty key="StackDumpSM.excludeWriteFile" value="{.*?output2.*}" />
+        </runsm>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build}"/>
+    </target>
 
 </project>

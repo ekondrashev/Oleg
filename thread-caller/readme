@@ -1,33 +1,29 @@
 This class shows a technique to determine a thread caller. 
 The source is http://stackoverflow.com/questions/6364849/can-i-get-the-name-of-the-class-and-method-within-which-the-current-thread-was-sp
 
-To compile:
-javac StackDumpSecurityManager.java
-jar cvf StackDumpSecurityManager.jar StackDumpSecurityManager.class StackDumpSecurityManager$PropertyTuple.class
-
 Set system properties:
 
-StackDumpSecurityManager.excludeWriteFile
-StackDumpSecurityManager.includeWriteFile
-StackDumpSecurityManager.excludeCreateThread
-StackDumpSecurityManager.includeCreateThread
+StackDumpSM.excludeWriteFile
+StackDumpSM.includeWriteFile
+StackDumpSM.excludeCreateThread
+StackDumpSM.includeCreateThread
 
 
 Run using the following options:
 
 using string comparison:
 
-java -DStackDumpSecurityManager.logLevel=2 -DStackDumpSecurityManager.includeCreateThread="ThreadCaller#c" -DStackDumpSecurityManager.excludeCreateThread="ThreadCaller#a" -Djava.security.policy=grant-everything.policy -Djava.security.manager=StackDumpSecurityManager ThreadCaller 
+java -DStackDumpSM.logLevel=2 -DStackDumpSM.includeCreateThread="ThreadCaller#c" -DStackDumpSM.excludeCreateThread="ThreadCaller#a" -Djava.security.policy=grant-everything.policy -Djava.security.manager=StackDumpSecurityManager ThreadCaller 
 
-java -DStackDumpSecurityManager.includeWriteFile="output" -DStackDumpSecurityManager.excludeWriteFile="output2" -Djava.security.policy=grant-everything.policy -Djava.security.manager=StackDumpSecurityManager FileWrite
+java -DStackDumpSM.includeWriteFile="output" -DStackDumpSM.excludeWriteFile="output2" -Djava.security.policy=grant-everything.policy -Djava.security.manager=StackDumpSecurityManager FileWrite
 
 
 
 or regex:
 
-java -DStackDumpSecurityManager.logLevel=2 -DStackDumpSecurityManager.includeCreateThread="{.*?ThreadCaller#c.*}" -DStackDumpSecurityManager.excludeCreateThread="{.*?ThreadCaller#a.*}" -Djava.security.policy=grant-everything.policy -Djava.security.manager=StackDumpSecurityManager ThreadCaller 
+java -DStackDumpSM.logLevel=2 -DStackDumpSM.includeCreateThread="{.*?ThreadCaller#c.*}" -DStackDumpSM.excludeCreateThread="{.*?ThreadCaller#a.*}" -Djava.security.policy=grant-everything.policy -Djava.security.manager=StackDumpSecurityManager ThreadCaller 
 
-java -DStackDumpSecurityManager.includeWriteFile="{.*?output.*}" -DStackDumpSecurityManager.excludeWriteFile="{.*?output2.*}" -Djava.security.policy=grant-everything.policy -Djava.security.manager=StackDumpSecurityManager FileWrite
+java -DStackDumpSM.includeWriteFile="{.*?output.*}" -DStackDumpSM.excludeWriteFile="{.*?output2.*}" -Djava.security.policy=grant-everything.policy -Djava.security.manager=StackDumpSecurityManager FileWrite
 
 
 
@@ -40,27 +36,27 @@ grant {
 
 To run in jboss put the following lines in the run.bat
 
-set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%JBOSS_HOME%\server\default\lib\StackDumpSecurityManager.jar
+set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%JBOSS_HOME%\server\default\lib\StackDumpSM.jar
 
 set JAVA_OPTS=%JAVA_OPTS% -Djava.security.manager=StackDumpSecurityManager
-rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.traceElementSeparator="*+*"
-rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.logLevel=2
+rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.traceElementSeparator="*+*"
+rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.logLevel=2
 set JAVA_OPTS=%JAVA_OPTS% -Djava.security.policy=%JBOSS_HOME%/server/default/conf/server.policy
 
 rem with strings comparison
 
-set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.includeCreateThread="lysis"
-set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.excludeCreateThread="AbstractPollingService$TimerListener#handleNotification"
-set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.includeWriteFile=""
-set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.excludeWriteFile="server/default/data;server/default/tmp;server/default/work;server/default/log"
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeCreateThread="lysis"
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeCreateThread="AbstractPollingService$TimerListener#handleNotification"
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeWriteFile=""
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeWriteFile="server/default/data;server/default/tmp;server/default/work;server/default/log"
 
 
 rem with regular expressions
 
-set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.includeCreateThread="{.*?lysis.*}"
-set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.excludeCreateThread="{.*?AbstractPollingService\$TimerListener#handleNotification.*}"
-set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.includeWriteFile="{.*}"
-set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSecurityManager.excludeWriteFile="{.*?server/default/data.*;.*?server/default/tmp.*;.*?server/default/work.*;.*?server/default/log.*}"
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeCreateThread="{.*?lysis.*}"
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeCreateThread="{.*?AbstractPollingService\$TimerListener#handleNotification.*}"
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeWriteFile="{.*}"
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeWriteFile="{.*?server/default/data.*;.*?server/default/tmp.*;.*?server/default/work.*;.*?server/default/log.*}"
 
 
 
