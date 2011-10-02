@@ -1,4 +1,6 @@
-import java.util.regex.*;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import java.net.InetAddress;
 
 public class StackDumpSecurityManager extends SecurityManager  {
 
@@ -7,22 +9,38 @@ public class StackDumpSecurityManager extends SecurityManager  {
 
     private class PropertyTuple {
         final String name;
-        Object[] values;
-        boolean regex;
+        Object[] values = null;
+        boolean regex = false;
         
-        PropertyTuple(String name, Object[] values, boolean regex) {
+        PropertyTuple(String name) {
             this.name = name;
-            this.values = values;
-            this.regex = regex;
         }
     };
 
-    private PropertyTuple includeCreateThread = new PropertyTuple("includeCreateThread", null, false);
-    private PropertyTuple excludeCreateThread = new PropertyTuple("excludeCreateThread", null, false);
-    private PropertyTuple includeReadFile = new PropertyTuple("includeReadFile", null, false);
-    private PropertyTuple excludeReadFile = new PropertyTuple("excludeReadFile", null, false);
-    private PropertyTuple includeWriteFile = new PropertyTuple("includeWriteFile", null, false);
-    private PropertyTuple excludeWriteFile = new PropertyTuple("excludeWriteFile", null, false);
+    private PropertyTuple includeAccept =       new PropertyTuple("includeAccept");
+    private PropertyTuple excludeAccept =       new PropertyTuple("excludeAccept");
+    private PropertyTuple includeConnect =      new PropertyTuple("includeConnect");
+    private PropertyTuple excludeConnect =      new PropertyTuple("excludeConnect");
+    private PropertyTuple includeListen =       new PropertyTuple("includeListen");
+    private PropertyTuple excludeListen =       new PropertyTuple("excludeListen");
+    private PropertyTuple includeMulticast =    new PropertyTuple("includeMulticast");
+    private PropertyTuple excludeMulticast =    new PropertyTuple("excludeMulticast");
+    private PropertyTuple includeSetFactory =   new PropertyTuple("includeSetFactory");
+    private PropertyTuple excludeSetFactory =   new PropertyTuple("excludeSetFactory");
+
+    private PropertyTuple includeCreateThread = new PropertyTuple("includeCreateThread");
+    private PropertyTuple excludeCreateThread = new PropertyTuple("excludeCreateThread");
+    private PropertyTuple includeExec =         new PropertyTuple("includeExec");
+    private PropertyTuple excludeExec =         new PropertyTuple("excludeExec");
+    private PropertyTuple includeLink =         new PropertyTuple("includeLink");
+    private PropertyTuple excludeLink =         new PropertyTuple("excludeLink");
+
+    private PropertyTuple includeReadFile =     new PropertyTuple("includeReadFile");
+    private PropertyTuple excludeReadFile =     new PropertyTuple("excludeReadFile");
+    private PropertyTuple includeWriteFile =    new PropertyTuple("includeWriteFile");
+    private PropertyTuple excludeWriteFile =    new PropertyTuple("excludeWriteFile");
+    private PropertyTuple includeDeleteFile =   new PropertyTuple("includeWriteFile");
+    private PropertyTuple excludeDeleteFile =   new PropertyTuple("excludeWriteFile");
 
     private int logLevel = 0;
     private String traceElementSeparator = ";; ";
@@ -40,35 +58,95 @@ public class StackDumpSecurityManager extends SecurityManager  {
             traceElementSeparator = sep;
             log(1, " ctor, traceElementSeparator=%s", traceElementSeparator);
         }
+
+        readProperty(includeAccept, false);
+        readProperty(excludeAccept, true);
+        readProperty(includeConnect, false);
+        readProperty(excludeConnect, true);
+        readProperty(includeListen, false);
+        readProperty(excludeListen, true);
+        readProperty(includeMulticast, false);
+        readProperty(excludeMulticast, true);
+        readProperty(includeSetFactory, false);
+        readProperty(excludeSetFactory, true);
+
         readProperty(includeCreateThread, false);
         readProperty(excludeCreateThread, true);
+        readProperty(includeExec, false);
+        readProperty(excludeExec, true);
+
         readProperty(includeReadFile, false);
         readProperty(excludeReadFile, true);
         readProperty(includeWriteFile, false);
         readProperty(excludeWriteFile, true);
+        readProperty(includeDeleteFile, false);
+        readProperty(excludeDeleteFile, true);
+    }
+
+    //----------------------------------------------------------------------
+
+    public void checkAccept(String host, int port) {
+        dumpIfMatch(includeAccept, excludeAccept, host + ":" + port, "checkAccept");
+        super.checkAccept(host, port);
+    }
+
+    
+    public void checkConnect(String host, int port) {
+        dumpIfMatch(includeConnect, excludeConnect, host + ":" + port, "checkConnect");
+        super.checkConnect(host, port);
     }
 
 
+    public void checkConnect(String host, int port, Object context) {
+        dumpIfMatch(includeConnect, excludeConnect, host + ":" + port, "checkConnectContext");
+        super.checkConnect(host, port, context);
+    }
+
+    public void checkListen(int port) {
+        dumpIfMatch(includeListen, excludeListen, ":" + port, "checkListen");
+        super.checkListen(port);
+    }
+
+    public void checkMulticast(InetAddress maddr) {
+        dumpIfMatch(includeMulticast, excludeMulticast, maddr.toString(), "checkMulticast");
+        super.checkMulticast(maddr);
+    }
+
+    public void checkSetFactory() {
+        dumpIfMatch(includeSetFactory, excludeSetFactory, "", "checkSetFactory");
+        super.checkSetFactory();
+    }
 
     public ThreadGroup getThreadGroup() {
-
         dumpIfMatch(includeCreateThread, excludeCreateThread, "", "getThreadGroup");
         return super.getThreadGroup();
     }
 
-
-    public void checkWrite(String file) {
-        
-        dumpIfMatch(includeWriteFile, excludeWriteFile, file.replace('\\', '/'), "checkWrite");
-        super.checkWrite(file);
+    public void checkExec(String cmd) {
+        dumpIfMatch(includeExec, excludeExec, cmd, "checkExec");
+        super.checkExec(cmd);
     }
-  
-    public void checkRead(String file){
 
+
+    public void checkLink(String lib) {
+        dumpIfMatch(includeLink, excludeLink, lib, "checkLink");
+        super.checkLink(lib);
+    }
+
+    public void checkRead(String file){
         dumpIfMatch(includeReadFile, excludeReadFile, file.replace('\\', '/'), "checkRead");
         super.checkWrite(file);
     }
 
+    public void checkWrite(String file) {
+        dumpIfMatch(includeWriteFile, excludeWriteFile, file.replace('\\', '/'), "checkWrite");
+        super.checkWrite(file);
+    }
+  
+    public void checkDelete(String file) {
+        dumpIfMatch(includeDeleteFile, excludeDeleteFile, file.replace('\\', '/'), "checkDelete");
+        super.checkDelete(file);
+    }
 
     //----------------------------------------------------------------------
 

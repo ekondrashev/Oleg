@@ -5,9 +5,9 @@ class FileWrite {
     Writer out1, out2, o;
 
     public FileWrite() throws Exception {
-        out1 = new BufferedWriter(new FileWriter("test/output1.txt"));
-        out2 = new BufferedWriter(new FileWriter("test/output2.txt"));
-        o = new BufferedWriter(new FileWriter("test/o.txt"));
+        out1 = new BufferedWriter(new FileWriter("test/output1.txt~"));
+        out2 = new BufferedWriter(new FileWriter("test/output2.txt~"));
+        o = new BufferedWriter(new FileWriter("test/o.txt~"));
     }
 
     public void a() throws Exception {
