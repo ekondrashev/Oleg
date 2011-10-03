@@ -35,12 +35,12 @@ public class StackDumpSecurityManager extends SecurityManager  {
     private PropertyTuple includeLink =         new PropertyTuple("includeLink");
     private PropertyTuple excludeLink =         new PropertyTuple("excludeLink");
 
-    private PropertyTuple includeReadFile =     new PropertyTuple("includeReadFile");
-    private PropertyTuple excludeReadFile =     new PropertyTuple("excludeReadFile");
+    // private PropertyTuple includeReadFile =     new PropertyTuple("includeReadFile");
+    // private PropertyTuple excludeReadFile =     new PropertyTuple("excludeReadFile");
     private PropertyTuple includeWriteFile =    new PropertyTuple("includeWriteFile");
     private PropertyTuple excludeWriteFile =    new PropertyTuple("excludeWriteFile");
-    private PropertyTuple includeDeleteFile =   new PropertyTuple("includeWriteFile");
-    private PropertyTuple excludeDeleteFile =   new PropertyTuple("excludeWriteFile");
+    private PropertyTuple includeDeleteFile =   new PropertyTuple("includeDeleteFile");
+    private PropertyTuple excludeDeleteFile =   new PropertyTuple("excludeDeleteFile");
 
     private int logLevel = 0;
     private String traceElementSeparator = ";; ";
@@ -75,8 +75,8 @@ public class StackDumpSecurityManager extends SecurityManager  {
         readProperty(includeExec, false);
         readProperty(excludeExec, true);
 
-        readProperty(includeReadFile, false);
-        readProperty(excludeReadFile, true);
+        // readProperty(includeReadFile, false);
+        // readProperty(excludeReadFile, true);
         readProperty(includeWriteFile, false);
         readProperty(excludeWriteFile, true);
         readProperty(includeDeleteFile, false);
@@ -133,10 +133,13 @@ public class StackDumpSecurityManager extends SecurityManager  {
         super.checkLink(lib);
     }
 
-    public void checkRead(String file){
-        dumpIfMatch(includeReadFile, excludeReadFile, file.replace('\\', '/'), "checkRead");
-        super.checkWrite(file);
-    }
+    /** 
+     * overriding checkRead causes stackoverflow when attaching to Jboss
+     */
+    // public void checkRead(String file){
+    //     dumpIfMatch(includeReadFile, excludeReadFile, file.replace('\\', '/'), "checkRead");
+    //     super.checkRead(file);
+    // }
 
     public void checkWrite(String file) {
         dumpIfMatch(includeWriteFile, excludeWriteFile, file.replace('\\', '/'), "checkWrite");

@@ -41,7 +41,7 @@ set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%JBOSS_HOME%\server\default\lib\StackDumpS
 set JAVA_OPTS=%JAVA_OPTS% -Djava.security.manager=StackDumpSecurityManager
 rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.traceElementSeparator="*+*"
 rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.logLevel=2
-set JAVA_OPTS=%JAVA_OPTS% -Djava.security.policy=%JBOSS_HOME%/server/default/conf/server.policy
+set JAVA_OPTS=%JAVA_OPTS% -Djava.security.policy=%JBOSS_HOME%/bin/grant-everything.policy
 
 rem with strings comparison
 
@@ -49,6 +49,24 @@ set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeCreateThread="lysis"
 set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeCreateThread="AbstractPollingService$TimerListener#handleNotification"
 set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeWriteFile=""
 set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeWriteFile="server/default/data;server/default/tmp;server/default/work;server/default/log"
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeDeleteFile=""
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeDeleteFile="server/default/data;server/default/tmp;server/default/work;server/default/log"
+
+rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeAccept=""
+rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeAccept=""
+rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeConnect=""
+rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeConnect=""
+rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeListen=""
+rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeListen=""
+
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeMulticast=""
+rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeMulticast=""
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeSetFactory=""
+rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeSetFactory=""
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeExec=""
+rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeExec=""
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeLink=""
+rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeLink=""
 
 
 rem with regular expressions

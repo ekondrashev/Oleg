@@ -2,9 +2,14 @@ import java.io.*;
 
 class FileWrite {
 
+    Reader in1;
     Writer out1, out2, o;
 
     public FileWrite() throws Exception {
+        char[] buf = new char[10000];
+        in1 = new BufferedReader(new FileReader("test/FileWrite.java"));
+        in1.read(buf);
+
         out1 = new BufferedWriter(new FileWriter("test/output1.txt~"));
         out2 = new BufferedWriter(new FileWriter("test/output2.txt~"));
         o = new BufferedWriter(new FileWriter("test/o.txt~"));
@@ -36,7 +41,9 @@ class FileWrite {
         out1.close();
         out2.close();
         o.close();
+        in1.close();
     }
+
 
     public static void main(String args[]) {
         try {

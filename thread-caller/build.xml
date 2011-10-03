@@ -58,6 +58,7 @@
             <sysproperty key="StackDumpSM.excludeCreateThread" value="ThreadCaller#a" />
         </runsm>
         <runsm classname="FileWrite">
+            <sysproperty key="StackDumpSM.includeReadFile" value="" />
             <sysproperty key="StackDumpSM.includeWriteFile" value="output" />
             <sysproperty key="StackDumpSM.excludeWriteFile" value="output2" />
         </runsm>
@@ -69,6 +70,7 @@
             <sysproperty key="StackDumpSM.excludeCreateThread" value="{.*?ThreadCaller#a.*}" />
         </runsm>
         <runsm classname="FileWrite">
+            <sysproperty key="StackDumpSM.includeReadFile" value="{.*}" />
             <sysproperty key="StackDumpSM.includeWriteFile" value="{.*?output.*}" />
             <sysproperty key="StackDumpSM.excludeWriteFile" value="{.*?output2.*}" />
         </runsm>
