@@ -1,11 +1,15 @@
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.net.InetAddress;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class StackDumpSecurityManager extends SecurityManager  {
 
     private static final String[] EMPTY_ARRAY = new String[0];
     private static final String[] EMPTY_ELEM_ARRAY = new String[]{""};
+
+    private static final SimpleDateFormat formatterTime = new SimpleDateFormat("HH:mm:ss,SSS");
 
     private class PropertyTuple {
         final String name;
@@ -185,7 +189,7 @@ public class StackDumpSecurityManager extends SecurityManager  {
     //----------------------------------------------------------------------
 
     private StringBuilder dumpHeader(String prefix) {
-        return new StringBuilder("--------StackDumpSM " + prefix + " ------{{");
+        return new StringBuilder(formatterTime.format(new Date()) + " --------StackDumpSM " + prefix + " ------{{");
     }
 
     private StringBuilder dumpStackTraceElem(StackTraceElement ste) {
@@ -217,7 +221,7 @@ public class StackDumpSecurityManager extends SecurityManager  {
         StackTraceElement[] listSTE = t.getStackTrace();
 
         boolean matches = false;
-        StringBuilder dump = dumpHeader(prefix);
+        StringBuilder dump = new StringBuilder();
         dump.append(param).append(traceElementSeparator);
         for(Object ire : inc.values) {
             Pattern pi = inc.regex? (Pattern)ire : null;
@@ -239,12 +243,11 @@ public class StackDumpSecurityManager extends SecurityManager  {
                 }
             }
             if(matches) {
-                dump.append(dumpFooter());
                 break;
             }
         }
         if(matches && !matchesExclude(exc, new String(dump), prefix)) {
-            System.out.println("\n\n" + dump + "\n\n");
+            System.out.println("\n\n" + dumpHeader(prefix).append(dump).append(dumpFooter()) + "\n\n");
         }
         } catch(Exception ex) {
             System.err.println(ex);
