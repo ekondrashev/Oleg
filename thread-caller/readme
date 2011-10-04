@@ -65,7 +65,7 @@ set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeSetFactory=""
 rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeSetFactory=""
 set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeExec=""
 rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeExec=""
-set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeLink=""
+rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeLink=""
 rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeLink=""
 
 

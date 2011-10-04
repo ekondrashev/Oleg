@@ -78,6 +78,8 @@ public class StackDumpSecurityManager extends SecurityManager  {
         readProperty(excludeCreateThread, true);
         readProperty(includeExec, false);
         readProperty(excludeExec, true);
+        readProperty(includeLink, false);
+        readProperty(excludeLink, true);
 
         // readProperty(includeReadFile, false);
         // readProperty(excludeReadFile, true);
