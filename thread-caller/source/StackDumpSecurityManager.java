@@ -11,7 +11,7 @@ public class StackDumpSecurityManager extends SecurityManager  {
 
     private static final SimpleDateFormat formatterTime = new SimpleDateFormat("HH:mm:ss,SSS");
 
-    private class PropertyTuple {
+    private static class PropertyTuple {
         final String name;
         Object[] values = null;
         boolean regex = false;
