@@ -16,12 +16,22 @@
     <!--   <echo> Classpath = "${ENV.CLASSPATH}"</echo>  -->
     <!-- </target>  -->
 
-
     <path id="classpath">
         <pathelement path="${ENV.CLASSPATH}"/>
         <pathelement location="${basedir}/StackDumpSM.jar" />
         <pathelement location="${build.test}" />
     </path>
+
+    <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
+    <property name="findbugs.home" value="c:/soft/java/findbugs-1.3.9/" />
+
+    <target name="findbugs" depends="jar">
+        <findbugs home="${findbugs.home}"  output="xml"  outputFile="findbugs.xml~" >
+            <sourcePath path="source" />
+            <class location="StackDumpSM.jar" />
+            <!-- <auxClasspath path="${basedir}/lib/Regex.jar" /> -->
+        </findbugs>
+    </target>
 
     <target name="jar" depends="compile">
         <jar destfile="StackDumpSM.jar">
