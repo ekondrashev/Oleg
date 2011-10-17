@@ -1,10 +1,15 @@
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.Date;
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
-public class StackDumpSecurityManager extends SecurityManager  {
+import java.lang.management.ManagementFactory;
+
+import javax.management.ObjectName;
+
+
+public class StackDumpSecurityManager extends SecurityManager  implements StackDumpSecurityManagerMBean {
 
     private static final String[] EMPTY_ARRAY = new String[0];
     private static final String[] EMPTY_ELEM_ARRAY = new String[]{""};
@@ -13,11 +18,16 @@ public class StackDumpSecurityManager extends SecurityManager  {
 
     private static class PropertyTuple {
         final String name;
+        String value = "";
         Object[] values = null;
         boolean regex = false;
         
         PropertyTuple(String name) {
             this.name = name;
+        }
+        
+        String getValue() {
+            return value;
         }
     };
 
@@ -49,18 +59,26 @@ public class StackDumpSecurityManager extends SecurityManager  {
     private int logLevel = 0;
     private String traceElementSeparator = ";; ";
 
+    private boolean isRegisteredMBean = false;
+    private long startupTime = System.currentTimeMillis();
+    private int registerMBeanTimeoutSeconds = 30;
 
     public StackDumpSecurityManager() {
-        super();
-        String ll = System.getProperty("StackDumpSM.logLevel");
-        if(ll != null && ll.trim().length() > 0) {
-            logLevel = Integer.valueOf(ll);
+
+        String prop = System.getProperty("StackDumpSM.logLevel");
+        if(prop != null && prop.trim().length() > 0) {
+            logLevel = Integer.valueOf(prop);
             log(1, " ctor, logLevel=%d", logLevel);
         }
-        String sep = System.getProperty("StackDumpSM.traceElementSeparator");
-        if(sep != null && sep.trim().length() > 0) {
-            traceElementSeparator = sep;
+        prop = System.getProperty("StackDumpSM.traceElementSeparator");
+        if(prop != null && prop.length() > 0) {
+            traceElementSeparator = prop;
             log(1, " ctor, traceElementSeparator=%s", traceElementSeparator);
+        }
+        prop = System.getProperty("StackDumpSM.registerMBeanTimeoutSeconds");
+        if(prop != null && prop.trim().length() > 0) {
+            registerMBeanTimeoutSeconds = Integer.valueOf(prop);
+            log(1, " ctor, registerMBeanTimeoutSeconds=%d", registerMBeanTimeoutSeconds);
         }
 
         readProperty(includeAccept, false);
@@ -87,6 +105,168 @@ public class StackDumpSecurityManager extends SecurityManager  {
         readProperty(excludeWriteFile, true);
         readProperty(includeDeleteFile, false);
         readProperty(excludeDeleteFile, true);
+    }
+
+    //----------------------------------------------------------------------
+    public String getIncludeAccept() {
+        return includeAccept.getValue();
+    }
+
+    public void setIncludeAccept(String include) {
+        parseProperty(include, includeAccept, false);
+    }
+
+    public String getExcludeAccept() {
+        return excludeAccept.getValue();
+    }
+
+    public void setExcludeAccept(String exclude) {
+        parseProperty(exclude, excludeAccept, true);
+    }
+
+    public String getIncludeConnect() {
+        return includeConnect.getValue();
+    }
+
+    public void setIncludeConnect(String include) {
+        parseProperty(include, includeConnect, false);
+    }
+
+    public String getExcludeConnect() {
+        return excludeConnect.getValue();
+    }
+
+
+    public void setExcludeConnect(String exclude) {
+        parseProperty(exclude, excludeConnect, true);
+    }
+
+    public String getIncludeListen() {
+        return includeListen.getValue();
+    }
+
+    public void setIncludeListen(String include) {
+        parseProperty(include, includeListen, false);
+    }
+
+    public String getExcludeListen() {
+        return excludeListen.getValue();
+    }
+
+    public void setExcludeListen(String exclude) {
+        parseProperty(exclude, excludeListen, true);
+    }
+
+    public String getIncludeMulticast() {
+        return includeMulticast.getValue();
+    }
+
+    public void setIncludeMulticast(String include) {
+        parseProperty(include, includeMulticast, false);
+    }
+
+    public String getExcludeMulticast() {
+        return excludeMulticast.getValue();
+    }
+
+    public void setExcludeMulticast(String exclude) {
+        parseProperty(exclude, excludeMulticast, true);
+    }
+
+    public String getIncludeSetFactory() {
+        return includeSetFactory.getValue();
+    }
+
+    public void setIncludeSetFactory(String include) {
+        parseProperty(include, includeSetFactory, false);
+    }
+
+    public String getExcludeSetFactory() {
+        return excludeSetFactory.getValue();
+    }
+
+    public void setExcludeSetFactory(String exclude) {
+        parseProperty(exclude, excludeSetFactory, true);
+    }
+
+    public String getIncludeCreateThread() {
+        return includeCreateThread.getValue();
+    }
+
+    public void setIncludeCreateThread(String include) {
+        parseProperty(include, includeCreateThread, false);
+    }
+
+    public String getExcludeCreateThread() {
+        return excludeCreateThread.getValue();
+    }
+
+    public void setExcludeCreateThread(String exclude) {
+        parseProperty(exclude, excludeCreateThread, true);
+    }
+
+    public String getIncludeExec() {
+        return includeExec.getValue();
+    }
+
+    public void setIncludeExec(String include) {
+        parseProperty(include, includeExec, false);
+    }
+
+    public String getExcludeExec() {
+        return excludeExec.getValue();
+    }
+    
+    public void setExcludeExec(String exclude) {
+        parseProperty(exclude, excludeExec, true);
+    }
+
+    public String getIncludeLink() {
+        return includeLink.getValue();
+    }
+
+    public void setIncludeLink(String include) {
+        parseProperty(include, includeLink, false);
+    }
+
+    public String getExcludeLink() {
+        return excludeLink.getValue();
+    }
+
+    public void setExcludeLink(String exclude) {
+        parseProperty(exclude, excludeLink, true);
+    } 
+
+    public String getIncludeWriteFile() {
+        return includeWriteFile.getValue();
+    }
+
+    public void setIncludeWriteFile(String include) {
+        parseProperty(include, includeWriteFile, false);
+    }
+
+    public String getExcludeWriteFile() {
+        return excludeWriteFile.getValue();
+    }
+
+    public void setExcludeWriteFile(String exclude) {
+        parseProperty(exclude, excludeWriteFile, true);
+    }
+
+    public String getIncludeDeleteFile() {
+        return includeDeleteFile.getValue();
+    }
+
+    public void setIncludeDeleteFile(String include) {
+        parseProperty(include, includeDeleteFile, false);
+    }
+
+    public String getExcludeDeleteFile() {
+        return excludeDeleteFile.getValue();
+    }
+
+    public void setExcludeDeleteFile(String exclude) {
+        parseProperty(exclude, excludeDeleteFile, true);
     }
 
     //----------------------------------------------------------------------
@@ -124,6 +304,16 @@ public class StackDumpSecurityManager extends SecurityManager  {
     }
 
     public ThreadGroup getThreadGroup() {
+        if(!isRegisteredMBean && (System.currentTimeMillis() - startupTime)/1000 > registerMBeanTimeoutSeconds) {
+            try {
+                isRegisteredMBean = true;
+                Object mb = ManagementFactory.getPlatformMBeanServer().registerMBean(this, new ObjectName("debug:service=StackDumpSM"));
+                log(1, "StackDumpSecurityManager is registered as MBean");
+            }
+            catch(Exception ex) {
+                System.err.println(ex);
+            }
+        }
         dumpIfMatch(includeCreateThread, excludeCreateThread, "", "getThreadGroup");
         return super.getThreadGroup();
     }
@@ -132,7 +322,6 @@ public class StackDumpSecurityManager extends SecurityManager  {
         dumpIfMatch(includeExec, excludeExec, cmd, "checkExec");
         super.checkExec(cmd);
     }
-
 
     public void checkLink(String lib) {
         dumpIfMatch(includeLink, excludeLink, lib, "checkLink");
@@ -301,6 +490,12 @@ public class StackDumpSecurityManager extends SecurityManager  {
      */
     private void readProperty(PropertyTuple tuple, boolean nullAsEmpty) {
         String prop = System.getProperty("StackDumpSM." + tuple.name);
+        parseProperty(prop, tuple, nullAsEmpty);
+    }
+
+    
+    private void parseProperty(String prop, PropertyTuple tuple, boolean nullAsEmpty) {
+        tuple.value = prop;
         if(prop != null) {
             if(isPropRegex(prop)) {
                 compileRegex(tuple, prop.substring(1, prop.length() - 1));

@@ -12,6 +12,7 @@
 
     <property name="run.logLevel"   value="op.test.Test"/>
 
+    <property name="server.deploy.dir" location="c:/work/deploy/ctr/jboss-4.3.0.GA_CP06/server/default/lib/"/>
     <!-- <target name="echo">  -->
     <!--   <echo> Classpath = "${ENV.CLASSPATH}"</echo>  -->
     <!-- </target>  -->
@@ -33,12 +34,6 @@
         </findbugs>
     </target>
 
-    <target name="jar" depends="compile">
-        <jar destfile="StackDumpSM.jar">
-            <fileset dir="${build.source}" includes="**" />
-        </jar>
-    </target>
-
     <presetdef name="myjavac">
         <javac includeantruntime="false" debug="off" >
             <include name="**/*.java"/>
@@ -53,6 +48,18 @@
         <myjavac srcdir="${source}" destdir="${build.source}" />
         <myjavac srcdir="${test}" destdir="${build.test}" />
     </target>
+
+
+    <target name="jar" depends="compile">
+        <jar destfile="StackDumpSM.jar">
+            <fileset dir="${build.source}" includes="**" />
+        </jar>
+    </target>
+
+    <target name="deploy" depends="jar">
+        <copy file="StackDumpSM.jar" todir="${server.deploy.dir}"/>
+    </target>    
+
 
     <presetdef name="runsm">
         <java classpathref="classpath" fork="yes" failonerror="yes">

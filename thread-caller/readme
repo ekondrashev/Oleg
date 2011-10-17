@@ -1,13 +1,6 @@
 This class shows a technique to determine a thread caller. 
 The source is http://stackoverflow.com/questions/6364849/can-i-get-the-name-of-the-class-and-method-within-which-the-current-thread-was-sp
 
-Set system properties:
-
-StackDumpSM.excludeWriteFile
-StackDumpSM.includeWriteFile
-StackDumpSM.excludeCreateThread
-StackDumpSM.includeCreateThread
-
 
 Run using the following options:
 
@@ -35,6 +28,9 @@ grant {
 
 
 To run in jboss put the following lines in the run.bat
+
+rem the following line allows connecting jconsole to the jboss
+set JAVA_OPTS=%JAVA_OPTS% -Dcom.sun.management.jmxremote
 
 set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%JBOSS_HOME%\server\default\lib\StackDumpSM.jar
 
