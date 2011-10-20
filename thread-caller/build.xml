@@ -58,6 +58,7 @@
 
     <target name="deploy" depends="jar">
         <copy file="StackDumpSM.jar" todir="${server.deploy.dir}"/>
+        <copy file="grant-everything.policy" todir="${server.deploy.dir}"/>
     </target>    
 
 

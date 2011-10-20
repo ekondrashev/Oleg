@@ -32,12 +32,12 @@ To run in jboss put the following lines in the run.bat
 rem the following line allows connecting jconsole to the jboss
 set JAVA_OPTS=%JAVA_OPTS% -Dcom.sun.management.jmxremote
 
-set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%JBOSS_HOME%\server\default\lib\StackDumpSM.jar
+set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%JBOSS_HOME%/server/default/lib/StackDumpSM.jar
 
 set JAVA_OPTS=%JAVA_OPTS% -Djava.security.manager=StackDumpSecurityManager
 rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.traceElementSeparator="*+*"
 rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.logLevel=2
-set JAVA_OPTS=%JAVA_OPTS% -Djava.security.policy=%JBOSS_HOME%/bin/grant-everything.policy
+set JAVA_OPTS=%JAVA_OPTS% -Djava.security.policy=%JBOSS_HOME%/server/default/lib/grant-everything.policy
 
 rem with strings comparison
 
