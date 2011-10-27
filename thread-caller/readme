@@ -44,9 +44,9 @@ rem with strings comparison
 set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeCreateThread="lysis"
 set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeCreateThread="AbstractPollingService$TimerListener#handleNotification"
 set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeWriteFile=""
-set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeWriteFile="server/default/data;server/default/tmp;server/default/work;server/default/log"
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeWriteFile="server/default"
 set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeDeleteFile=""
-set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeDeleteFile="server/default/data;server/default/tmp;server/default/work;server/default/log"
+set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeDeleteFile="server/default"
 
 rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.includeAccept=""
 rem set JAVA_OPTS=%JAVA_OPTS% -DStackDumpSM.excludeAccept=""

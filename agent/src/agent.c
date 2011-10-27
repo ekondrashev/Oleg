@@ -190,20 +190,18 @@ int check_object_value(char* object_buf, int idx)
 
 static void JNICALL cbEventFieldModification(jvmtiEnv *jvmti, JNIEnv* jni, jthread thread, jmethodID method, jlocation location, jclass field_klass, jobject object, jfieldID field, char signature_type, jvalue new_value) 
 {
-  static char obj_buf[MAX_TO_STRING_LEN], val_buf[MAX_TO_STRING_LEN];
   int i, do_log = 0, obj_cmp_ok = 2; // 2 is not yet initialized value
   if (gdata.vm_is_dead) {
     return;
   }
 
-  obj_buf[0] = 0;
-
   // commented out the trace because it may have performance impact
   // f_trace(jni, TRACE_DEBUG, "cbEventFieldModification %c\n", signature_type); 
 
-  enter_critical_section(jvmti); {
-    for(i = 0; i < watch_field_cnt; ++i) {
-      if(watch_field[i].field == field) {
+  for(i = 0; i < watch_field_cnt; ++i) {
+    if(watch_field[i].field == field) {
+      enter_critical_section(jvmti); {
+        char obj_buf[MAX_TO_STRING_LEN], val_buf[MAX_TO_STRING_LEN];
         valueOf(jvmti, jni, new_value, signature_type, val_buf, MAX_TO_STRING_LEN - 1);
         do_log = check_field_value(val_buf, i);
         if(do_log) {
@@ -214,6 +212,9 @@ static void JNICALL cbEventFieldModification(jvmtiEnv *jvmti, JNIEnv* jni, jthre
             }
           }
           if(obj_cmp_ok) {
+            if(do_log) {
+              log_field_watch(jvmti, thread, i, obj_buf, val_buf);
+            }
             break;
           }
           else {
@@ -221,12 +222,8 @@ static void JNICALL cbEventFieldModification(jvmtiEnv *jvmti, JNIEnv* jni, jthre
           }
         }
       }
-    }
-    if(do_log) {
-      log_field_watch(jvmti, thread, i, obj_buf, val_buf);
-    }
-
-  } exit_critical_section(jvmti);
+    } exit_critical_section(jvmti);
+  }
 }
 
 
@@ -294,33 +291,31 @@ void process_field_set(jvmtiEnv *jvmti, JNIEnv* jni, jthread thread)
 
 static void JNICALL cbMethodEntry(jvmtiEnv *jvmti, JNIEnv* jni, jthread thread, jmethodID method) 
 {
-  /*
-  if (gdata.vm_is_dead) {
-    return;
-  }
-  */
+  /* if (gdata.vm_is_dead) { */
+  /*   return; */
+  /* } */
   if(field_set_method == method) {
     process_field_set(jvmti, jni, thread);
   }
-  /*
+  ///*
   else {
-    enter_critical_section(jvmti); {
-      int i;
-      for(i = 0; i < method_call_cnt; ++i) {
-        if(method_call[i].method == method) {
-          log_method_call(jvmti, thread, i);
-        }
+    int i;
+    for(i = 0; i < method_call_cnt; ++i) {
+      if(method_call[i].method == method) {
+        log_method_call(jvmti, thread, i);
       }
-    } exit_critical_section(jvmti);
+    }
   }
-  */
+  //*/
 }
 
 
 void log_method_call(jvmtiEnv *jvmti, jthread thread, int idx)
 {
-  f_log(0, "method call %s class name %s\n", method_call[idx].method_name, method_call[idx].klass_name);
-  dump_stack(jvmti, thread);
+  enter_critical_section(jvmti); { 
+    f_log(0, "method call %s class name %s\n", method_call[idx].method_name, method_call[idx].klass_name);
+    dump_stack(jvmti, thread);
+  } exit_critical_section(jvmti);
 }
 
 
