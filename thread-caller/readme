@@ -29,8 +29,11 @@ grant {
 
 To run in jboss put the following lines in the run.bat
 
+rem !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 rem the following line allows connecting jconsole to the jboss
-set JAVA_OPTS=%JAVA_OPTS% -Dcom.sun.management.jmxremote
+rem in some jboss configurations this may cause jboss stop in the beginning
+rem set JAVA_OPTS=%JAVA_OPTS% -Dcom.sun.management.jmxremote
+rem !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 set JBOSS_CLASSPATH=%JBOSS_CLASSPATH%;%JBOSS_HOME%/server/default/lib/StackDumpSM.jar
 
